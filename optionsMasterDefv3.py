@@ -1,16 +1,6 @@
-#Agregue esta linea y va por commit...
-# 2da linea...222
-#ok bajado de github, le agrego esta linea en la oficina
-#voy a trar una notebook de dropbox
-# en esta linea creo un pull request
-# Este es branch1??
-#linea 4
-#linea 5, hago commit /pull req, pero no push
-#line6 6, hago pull req y desp commit
-#linea 7,commit y pull req
-#linea 8, commit y pull req
-#linea 9, solo push
-
+"""
+Linea 1, todavia en Master
+"""
 import numpy as np
 import math
 import sys
