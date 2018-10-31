@@ -124,8 +124,8 @@ def binomCRR3v2(contract="S", underlying=100, strike=100, life_days=365, vol=.30
 
     # Basic calculations
     h = life_days / 365 / steps
-    u = math.exp(vol * math.sqrt(h))
-    d = math.exp(-vol * math.sqrt(h))
+    u = math.exp(vol * math.sqrt(h))   #upFactor
+    d = math.exp(-vol * math.sqrt(h))  #DownFactor
     drift = driftCalc(contract, rf, h)
 
     q = (drift - d) / (u - d)
