@@ -99,5 +99,5 @@ def jarrowRuddCy(contract, double s, double k,double t,double v,double rf,double
         derivatives[6]=impliedVol
         derivatives[7]=cont
 
-        return derivatives
+    return derivatives
 

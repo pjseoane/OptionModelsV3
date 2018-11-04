@@ -15,8 +15,8 @@ def payoff(underlying, strike, cp):
 def driftCalc(contract, rf, h):
     return (1 if (contract == "F") else math.exp(rf * h))
 
-def fillDerivativesArray(prima, delta, gamma, vega, theta, rho,impVlt):
-    derivatives = np.zeros(7)
+def fillDerivativesArray(prima, delta, gamma, vega, theta, rho,impVlt,cont):
+    derivatives = np.zeros(10)
     derivatives[0] = prima
     derivatives[1] = delta
     derivatives[2] = gamma
@@ -24,10 +24,11 @@ def fillDerivativesArray(prima, delta, gamma, vega, theta, rho,impVlt):
     derivatives[4] = theta
     derivatives[5] = rho
     derivatives[6]=  impVlt
+    derivatives[7]=  cont
     return derivatives
 
 def binomJRv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0, american=True,
-            steps=1000,valueToFind=6,mktPrice=0):
+            steps=1000,valueToFind=6,mktValue=0):
     """ Price and option using the Jarrow-Rudd binomial model"""
 
 
@@ -63,63 +64,36 @@ def binomJRv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
             if american:
                 optval[i, j] = max(optval[i, j], payoff(stkval[i, j], strike, cp))
 
-    def prima():
-        return optval[0, 0]
+    if (valueToFind==0):
+        return (optval[0,0])
+    else:
+        prima=optval[0,0]
+        delta=(optval[1,1]-optval[1,0])/(stkval[1,1]-stkval[1,0])
+        vega=binomJRv2(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div,american, steps, 0,0) - prima
+        gamma=((optval[2,0]-optval[2,1])/(stkval[2,0]-stkval[2,1])-(optval[2,1]-optval[2,2])/(stkval[2,1]-stkval[2,2])) / ((stkval[2,0]-stkval[2,2])/2)
+        theta=(optval[2,1]-optval[0,0])/(2*365*h)
+        rho=binomJRv2(contract, underlying, strike, life_days, vol, rf+0.01, cp, div,american, steps, 0,0) - prima
 
-    def delta():
-        return (optval[1, 1] - optval[1, 0]) / (stkval[1, 1] - stkval[1, 0])
+        cont = 0
+        impliedVol = vol
+        if mktValue > 0:
+            accuracy = 0.0001
+            #cont = 0
+            dif = mktValue - prima
+            #impliedVol = vol
 
-    def gamma():
-        return ((optval[2, 0] - optval[2, 1]) / (stkval[2, 0] - stkval[2, 1]) - (optval[2, 1] - optval[2, 2]) / (
-                stkval[2, 1] - stkval[2, 2])) / ((stkval[2, 0] - stkval[2, 2]) / 2)
-
-    def vega():
-        return binomJRv2(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps,
-                           0,0) - prima()
-
-    def theta():
-        return (optval[2, 1] - optval[0, 0]) / (2 * 365 * h)
-
-    def rho():
-        return binomJRv2(contract, underlying, strike, life_days, vol, rf+0.01, cp, div, american, steps,
-                           0,0) - prima()
-
-    #Calculo de Implied vlt con vega
-    def ivVega():
-        if mktPrice>0:
-            accuracy=0.0001
-            cont=0
-            dif = mktPrice - prima()
-            impliedVol = vol
-
-            while (abs(dif) > accuracy and cont < 20 and mktPrice > 0 and impliedVol > 0.005):
-                impliedVol += (dif / vega() / 100)
-                dif = mktPrice - binomJRv2(contract, underlying, strike, life_days, impliedVol, rf, cp, div, american, steps, 0,0)
+            while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
+                impliedVol += (dif / vega / 100)
+                dif = mktValue - binomJRv2(contract, underlying, strike, life_days, impliedVol, rf, cp, div,american, steps, 0,0)
                 cont += 1
-                #vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
-        else:
-            impliedVol=vol
-        return impliedVol
+                    # vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
+        #else:
+        #    impliedVol = vol
+        return fillDerivativesArray(prima,delta,gamma,vega,theta,rho,impliedVol,cont)
 
-    def arr():
-        return fillDerivativesArray(prima(), delta(), gamma(), vega(), theta(), rho(), ivVega())
-
-    switcher = {
-        0: prima,
-        1: delta,
-        2: gamma,
-        3: vega,
-        4: theta,
-        5: rho,
-        6: arr,
-        7: ivVega
-    }
-    func = switcher.get(valueToFind, "Default Nothing")
-
-    return func()
 
 def binomCRR3v2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0, american=True,
-                steps=1000, argument=6,mktPrice=0):
+                steps=1000, valueToFind=6,mktValue=0):
     optionsPrice = np.zeros((steps + 1))
 
     # Basic calculations
@@ -144,72 +118,49 @@ def binomCRR3v2(contract="S", underlying=100, strike=100, life_days=365, vol=.30
             c = optionsPrice[2]
         for j in range(0, steps - i):
             optionAtNode = (q * optionsPrice[j] + qx * optionsPrice[j + 1]) / drift
+            optionsPrice[j] = optionAtNode #test
 
             if (american == 1):
                 assetAtNode = underlying * math.pow(u, steps - i - j - 1) * math.pow(d, j)
                 optionsPrice[j] = max(payoff(assetAtNode, strike, cp), optionAtNode)
-            else:
-                optionsPrice[j] = optionAtNode
+           # else:
+            #    optionsPrice[j] = optionAtNode
 
-
-    def prima():
-        return optionsPrice[0]
-
-    def delta():
-        return (a - c) / (underlying * u * u - underlying * d * d)
-
-    def gamma():
+    if (valueToFind==0):
+        return (optionsPrice[0])
+    else:
+        prima = optionsPrice[0]
+        delta = (a - c) / (underlying * u * u - underlying * d * d)
         delta1 = (a - b) / (underlying * u * u - underlying * u * d)
         delta2 = (b - c) / (underlying * u * d - underlying * d * d)
-        return (delta1 - delta2) / ((underlying * u * u - underlying * d * d) / 2)
+        gamma= (delta1 - delta2) / ((underlying * u * u - underlying * d * d) / 2)
+        vega = binomCRR3v2(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps, 0,
+                           0) - prima
 
-    def vega():
-        return binomCRR3v2(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps,
-                           0) - prima()
+        theta = (b - optionsPrice[0]) / (2 * h * 365)
+        rho = binomCRR3v2(contract, underlying, strike, life_days, vol, rf+0.01, cp, div, american, steps, 0,
+                           0) - prima
+        cont = 0
+        impliedVol = vol
 
-        # return -33.33
+        if mktValue > 0:
+            accuracy = 0.0001
+            #cont = 0
+            dif = mktValue - prima
+            #impliedVol = vol
 
-    def theta():
-        return (b - optionsPrice[0]) / (2 * h * 365)
-
-    def rho():
-        return binomCRR3v2(contract, underlying, strike, life_days, vol,  rf+0.01, cp, div, american, steps,
-                           0) - prima()
-    def ivVega():
-        if mktPrice>0:
-            accuracy=0.0001
-            cont=0
-            dif = mktPrice - prima()
-            impliedVol = vol
-
-            while (abs(dif) > accuracy and cont < 20 and mktPrice > 0 and impliedVol > 0.005):
-                impliedVol += (dif / vega() / 100)
-                dif = mktPrice - binomCRR3v2(contract, underlying, strike, life_days, impliedVol, rf, cp, div, american, steps, 0,0)
+            while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
+                impliedVol += (dif / vega / 100)
+                dif = mktValue - binomCRR3v2(contract, underlying, strike, life_days, impliedVol, rf, cp, div,american, steps, 0,0)
                 cont += 1
-                #vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
-        else:
-            impliedVol=vol
-        return impliedVol
+                    # vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
+        #else:
+        #    impliedVol = vol
+        return fillDerivativesArray(prima,delta,gamma,vega,theta,rho,impliedVol,cont)
 
-    def arr():
-        return fillDerivativesArray(prima(), delta(), gamma(), vega(), theta(), rho(),ivVega())
-
-    switcher = {
-        0: prima,
-        1: delta,
-        2: gamma,
-        3: vega,
-        4: theta,
-        5: rho,
-        6: arr,
-        7: ivVega
-    }
-    func = switcher.get(argument, "Default Nothing")
-
-    return func()
 
 def binomCRR4v2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0, american=True,
-              steps=1000,argument=6,mktPrice=0):
+              steps=1000,valueToFind=6,mktValue=0):
 
     # Basic calculations
     h = life_days / 365 / steps
@@ -242,123 +193,83 @@ def binomCRR4v2(contract="S", underlying=100, strike=100, life_days=365, vol=.30
             if american:
                 optval[i, j] = max(optval[i, j], payoff(stkval[i, j], strike, cp))
 
-    def prima():
-        return optval[0, 0]
-    def delta():
-        return (optval[1, 1] - optval[1, 0]) / (stkval[1, 1] - stkval[1, 0])
-    def gamma():
-        return ((optval[2, 0] - optval[2, 1]) / (stkval[2, 0] - stkval[2, 1]) - (optval[2, 1] - optval[2, 2]) / (
+    if (valueToFind==0):
+        return (optval[0,0])
+    else:
+        prima = optval[0,0]
+        delta = (optval[1, 1] - optval[1, 0]) / (stkval[1, 1] - stkval[1, 0])
+        gamma= ((optval[2, 0] - optval[2, 1]) / (stkval[2, 0] - stkval[2, 1]) - (optval[2, 1] - optval[2, 2]) / (
                 stkval[2, 1] - stkval[2, 2])) / ((stkval[2, 0] - stkval[2, 2]) / 2)
-    def theta():
-        return (optval[2, 1] - optval[0, 0]) / (2 * 365 * h)
-    def vega():
-        return binomCRR4v2(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps,
-                           0) - prima()
-    def rho():
-        return binomCRR4v2(contract, underlying, strike, life_days, vol, rf+0.01, cp, div, american, steps,
-                           0) - prima()
-    def ivVega():
-        if mktPrice>0:
-            accuracy=0.0001
-            cont=0
-            dif = mktPrice - prima()
-            impliedVol = vol
 
-            while (abs(dif) > accuracy and cont < 20 and mktPrice > 0 and impliedVol > 0.005):
-                impliedVol += (dif / vega() / 100);
-                dif = mktPrice - binomCRR4v2(contract, underlying, strike, life_days, impliedVol, rf, cp, div, american, steps, 0,0)
+        vega = binomCRR4v2(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps, 0,
+                           0) - prima
+
+        theta = (optval[2, 1] - optval[0, 0]) / (2 * 365 * h)
+        rho = binomCRR4v2(contract, underlying, strike, life_days, vol, rf+0.01, cp, div, american, steps, 0,
+                           0) - prima
+        cont = 0
+        impliedVol = vol
+
+        if mktValue > 0:
+            accuracy = 0.0001
+            #cont = 0
+            dif = mktValue - prima
+            #impliedVol = vol
+
+            while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
+                impliedVol += (dif / vega / 100)
+                dif = mktValue - binomCRR4v2(contract, underlying, strike, life_days, impliedVol, rf, cp, div,american, steps, 0,0)
                 cont += 1
-                #vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
-        else:
-            impliedVol=vol
-        return impliedVol
 
-    def arr():
-        return fillDerivativesArray(prima(), delta(), gamma(), vega(), theta(), rho(),ivVega())
+        return fillDerivativesArray(prima,delta,gamma,vega,theta,rho,impliedVol,cont)
 
-    switcher = {
-        0: prima,
-        1: delta,
-        2: gamma,
-        3: vega,
-        4: theta,
-        5: rho,
-        6: arr,
-        7: ivVega
-    }
-    func = switcher.get(argument, "Default Nothing")
 
-    return func()
-
-def blackScholesv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=-1, div=0,argument=6,mktPrice=0):
+def blackScholesv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=-1, div=0,valueToFind=6,mktValue=0):
     dayYear = life_days / 365
     q = div if (contract == "S") else riskFree
 
     d1 = (math.log(underlying / strike) + ((riskFree - q) + 0.5 * math.pow(vol, 2)) * dayYear) / (
                 vol * math.sqrt(dayYear))
     d2 = d1 - vol * math.sqrt(dayYear)
-    veg=underlying * math.sqrt(dayYear) * stats.norm.pdf(d1) / 100
+    vega=underlying * math.sqrt(dayYear) * stats.norm.pdf(d1) / 100
 
     # gamma y vega son iguales para call y put
-    def gamma():
-        return stats.norm.pdf(d1) * math.exp(-riskFree * dayYear) / (underlying * vol * math.sqrt(dayYear))
+    gamma=stats.norm.pdf(d1) * math.exp(-riskFree * dayYear) / (underlying * vol * math.sqrt(dayYear))
 
-    def vega():
-        return veg
-
-    def prima():
-        return cp * underlying * math.exp(-q * dayYear) * stats.norm.cdf(cp * d1) - cp * strike * math.exp(
+    prima=cp * underlying * math.exp(-q * dayYear) * stats.norm.cdf(cp * d1) - cp * strike * math.exp(
         -riskFree * dayYear) * stats.norm.cdf(cp * d2)
+
     t = (0 if (cp == 1) else 1)
 
-    def delta():
-        return math.exp(-q * dayYear) * (stats.norm.cdf(d1) - t)
+    delta=math.exp(-q * dayYear) * (stats.norm.cdf(d1) - t)
 
     theta1 = -(underlying * vol * stats.norm.pdf(d1)) / (2 * math.sqrt(dayYear))
     theta2 = cp * strike * riskFree * math.exp(-riskFree * dayYear) * stats.norm.cdf(
         d2 * cp) + cp * div * underlying * stats.norm.cdf(d1 * cp)
 
 
-    def theta():
-        return (theta1 - theta2) / 365
+    theta= (theta1 - theta2) / 365
 
-    def rho():
-        return cp * strike * dayYear * math.exp(-riskFree * dayYear) * stats.norm.cdf(cp * d2) / 100  # Hull pag 317
+    rho=cp * strike * dayYear * math.exp(-riskFree * dayYear) * stats.norm.cdf(cp * d2) / 100  # Hull pag 317
 
-    def ivVega():
-        if mktPrice>0:
+    if (valueToFind==0):
+        return prima
+    else:
+        impliedVol = vol
+        cont = 0
+
+        if mktValue>0:
             accuracy=0.0001
-            cont=0
-            dif = mktPrice - prima()
-            impliedVol = vol
+            dif = mktValue - prima
+            #impliedVol = vol
 
-            while (abs(dif) > accuracy and cont < 20 and mktPrice > 0 and impliedVol > 0.005):
-                impliedVol += (dif / vega() / 100);
-                dif = mktPrice - blackScholesv2(contract, underlying, strike, life_days, impliedVol, riskFree, cp, div,0,0)
+            while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
+                impliedVol += (dif / vega / 100)
+                dif = mktValue - blackScholesv2(contract, underlying, strike, life_days, impliedVol, riskFree, cp, div,0,0)
                 cont += 1
                 #vol=impliedVol  #??para actualizar todas las greeks a la nueva vol
-        else:
-            impliedVol=vol
-        return impliedVol
+        return fillDerivativesArray(prima, delta, gamma, vega, theta, rho, impliedVol, cont)
 
-
-
-    def arr():
-        return fillDerivativesArray(prima(), delta(), gamma(), vega(), theta(), rho(),ivVega())
-
-    switcher = {
-        0: prima,
-        1: delta,
-        2: gamma,
-        3: vega,
-        4: theta,
-        5: rho,
-        6: arr,
-        7: ivVega
-    }
-    func = switcher.get(argument, "Default Nothing")
-
-    return func()
 
 def biseccion(func, min, max, accuracy, maxIterations):
     count = 0
