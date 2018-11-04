@@ -101,13 +101,3 @@ def jarrowRuddCy(contract, double s, double k,double t,double v,double rf,double
 
         return derivatives
 
-
-    """
-    derivatives[0]=optval[0,0] #prima
-    derivatives[1]=(optval[1,1]-optval[1,0])/(stkval[1,1]-stkval[1,0]) #delta
-    derivatives[2]=(((optval[2,0]-optval[2,1])/(stkval[2,0]-stkval[2,1])-(optval[2,1]-optval[2,2])/(stkval[2,1]-stkval[2,2])) / ((stkval[2,0]-stkval[2,2])/2)) #gamma
-    derivatives[3]=(optval[2,1]-optval[0,0])/(2*365*h) #theta
-    #derivatives[4]=jarrow_rudd(contract, s, k, t,v+0.01, rf, cp,am, n)[0]-optval[0,0]
-    return derivatives
-    #return optval[0,0]
-    """
