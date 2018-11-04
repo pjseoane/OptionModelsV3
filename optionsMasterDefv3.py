@@ -27,7 +27,7 @@ def fillDerivativesArray(prima, delta, gamma, vega, theta, rho,impVlt):
     return derivatives
 
 def binomJRv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0, american=True,
-            steps=1000,argument=6,mktPrice=0):
+            steps=1000,valueToFind=6,mktPrice=0):
     """ Price and option using the Jarrow-Rudd binomial model"""
 
 
@@ -72,6 +72,7 @@ def binomJRv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
     def gamma():
         return ((optval[2, 0] - optval[2, 1]) / (stkval[2, 0] - stkval[2, 1]) - (optval[2, 1] - optval[2, 2]) / (
                 stkval[2, 1] - stkval[2, 2])) / ((stkval[2, 0] - stkval[2, 2]) / 2)
+
     def vega():
         return binomJRv2(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps,
                            0,0) - prima()
@@ -83,9 +84,7 @@ def binomJRv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
         return binomJRv2(contract, underlying, strike, life_days, vol, rf+0.01, cp, div, american, steps,
                            0,0) - prima()
 
-    def arr():
-        return fillDerivativesArray(prima(), delta(), gamma(), vega(), theta(), rho(), ivVega())
-
+    #Calculo de Implied vlt con vega
     def ivVega():
         if mktPrice>0:
             accuracy=0.0001
@@ -94,7 +93,7 @@ def binomJRv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
             impliedVol = vol
 
             while (abs(dif) > accuracy and cont < 20 and mktPrice > 0 and impliedVol > 0.005):
-                impliedVol += (dif / vega() / 100);
+                impliedVol += (dif / vega() / 100)
                 dif = mktPrice - binomJRv2(contract, underlying, strike, life_days, impliedVol, rf, cp, div, american, steps, 0,0)
                 cont += 1
                 #vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
@@ -102,7 +101,8 @@ def binomJRv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
             impliedVol=vol
         return impliedVol
 
-
+    def arr():
+        return fillDerivativesArray(prima(), delta(), gamma(), vega(), theta(), rho(), ivVega())
 
     switcher = {
         0: prima,
@@ -114,7 +114,7 @@ def binomJRv2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
         6: arr,
         7: ivVega
     }
-    func = switcher.get(argument, "Default Nothing")
+    func = switcher.get(valueToFind, "Default Nothing")
 
     return func()
 
@@ -183,7 +183,7 @@ def binomCRR3v2(contract="S", underlying=100, strike=100, life_days=365, vol=.30
             impliedVol = vol
 
             while (abs(dif) > accuracy and cont < 20 and mktPrice > 0 and impliedVol > 0.005):
-                impliedVol += (dif / vega() / 100);
+                impliedVol += (dif / vega() / 100)
                 dif = mktPrice - binomCRR3v2(contract, underlying, strike, life_days, impliedVol, rf, cp, div, american, steps, 0,0)
                 cont += 1
                 #vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
