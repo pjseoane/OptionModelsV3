@@ -54,10 +54,10 @@ def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
         theta=(optval[2,1]-optval[0,0])/(2*365*h)
         rho=binomJRv4(contract, underlying, strike, life_days, vol, rf+0.01, cp, div,american, steps, 0,0) - prima
 
-        difference = lambda model, vlt: mktValue - model(contract, underlying, strike, life_days, vlt, rf, cp, div,
+        diftoModel1 = lambda vlt: mktValue - binomJRv4(contract, underlying, strike, life_days, vlt, rf, cp, div,
                                                          american, steps, 0, 0)
 
-        dif2=lambda vlt: mktValue-binomJRv4(contract, underlying, strike, life_days, vlt, rf, cp, div,
+        diftoModel2= lambda vlt: mktValue-binomJRv4(contract, underlying, strike, life_days, vlt, rf, cp, div,
                                                          american, steps, 0, 0)
 
         if(prima<=mktValue):
@@ -66,9 +66,9 @@ def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
         else:
             mini=0
             maxi=vol
-        #impliedVol2=dif2(vol/2)
-        impliedVol2=cf.biseccion(dif2,mini,maxi,0.0001,50)
 
+        impliedVol2=cf.biseccion(diftoModel2,mini,maxi,0.0001,50)
+        impliedVol1=cf.ivVega(diftoModel1,vega,0.0001)
 
         #Calculo de impVlt
         cont = 0
