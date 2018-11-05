@@ -24,25 +24,28 @@ def fillDerivativesArray(prima, delta, gamma, vega, theta, rho,impVlt,cont):
     derivatives[7]=  cont
     return derivatives
 
-def ivVega():
-    return
+#difference=lambda model, vlt: mktValue-model(contract, underlying, strike, life_days, vlt, rf, cp, div,american, steps, 0,0)
+#diffWithModel=lambda model,contract, underlying, strike, life_days, impliedVol, rf, cp, div,american, steps,mktValue: mktValue-model(contract, underlying, strike, life_days, impliedVol, rf, cp, div,american, steps,0,0)
+
+
 
 def ivBiseccion():
     return
 
 def biseccion(func, min, max, accuracy, maxIterations):
-    count = 0
+    count = 1
     mid = (min + max) / 2
     dif = func(mid)
 
     while (abs(dif) > accuracy and count < maxIterations):
-        if (dif >= 0):
+        if (dif <= 0):
             max = mid
         else:
             min = mid
-            mid = (min + max) / 2
-            dif = func(mid)
 
-            count += 1
+        mid = (min + max) / 2
+        dif = func(mid)
 
-        return (mid)
+        count += 1
+
+    return (mid)

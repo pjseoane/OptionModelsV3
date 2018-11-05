@@ -2,8 +2,13 @@ import math
 import numpy as np
 import optionModels.commonFuncs as cf
 
+
+
+
+
+
 def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0, american=True,
-            steps=100,valueToFind=6,mktValue=0):
+            steps=100,valueToFind=6,mktValue=11):
     """ Price and option using the Jarrow-Rudd binomial model"""
 
 
@@ -49,9 +54,27 @@ def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
         theta=(optval[2,1]-optval[0,0])/(2*365*h)
         rho=binomJRv4(contract, underlying, strike, life_days, vol, rf+0.01, cp, div,american, steps, 0,0) - prima
 
+        difference = lambda model, vlt: mktValue - model(contract, underlying, strike, life_days, vlt, rf, cp, div,
+                                                         american, steps, 0, 0)
+
+        dif2=lambda vlt: mktValue-binomJRv4(contract, underlying, strike, life_days, vlt, rf, cp, div,
+                                                         american, steps, 0, 0)
+
+        if(prima<=mktValue):
+            mini=vol
+            maxi=vol*3
+        else:
+            mini=0
+            maxi=vol
+        #impliedVol2=dif2(vol/2)
+        impliedVol2=cf.biseccion(dif2,mini,maxi,0.0001,50)
+
+
+        #Calculo de impVlt
         cont = 0
         impliedVol = vol
         if mktValue > 0:
+
             accuracy = 0.0001
             #cont = 0
             dif = mktValue - prima
@@ -59,12 +82,12 @@ def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
 
             while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
                 impliedVol += (dif / vega / 100)
-                dif = mktValue - binomJRv4(contract, underlying, strike, life_days, impliedVol, rf, cp, div,american, steps, 0,0)
+                #dif = mktValue - binomJRv4(contract, underlying, strike, life_days, impliedVol, rf, cp, div,american, steps, 0,0)
+                dif=difference(binomJRv4,impliedVol)
                 cont += 1
-                    # vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
-        #else:
-        #    impliedVol = vol
-        return cf.fillDerivativesArray(prima,delta,gamma,vega,theta,rho,impliedVol,cont)
+
+
+        return cf.fillDerivativesArray(prima,delta,gamma,vega,theta,rho,impliedVol2,impliedVol)
 
 if __name__ == '__main__':
     print('__main__')
@@ -72,3 +95,4 @@ if __name__ == '__main__':
 
 else:
         print("Nombre de modelo:", __name__)
+
