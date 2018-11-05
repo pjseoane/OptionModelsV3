@@ -55,7 +55,7 @@ def blackScholes(contract="S", underlying=100, strike=100, life_days=365, vol=.3
 
 if __name__=='__main__':
     print('__main__')
-    print(blackScholes())
+    print("Modelo BlackScholes :\n",blackScholes())
 else:
     print("Nombre de modelo:",__name__)
 

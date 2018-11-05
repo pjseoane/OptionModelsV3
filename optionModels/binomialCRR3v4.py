@@ -4,7 +4,7 @@ import numpy as np
 import optionModels.commonFuncs as cf
 
 
-def binomCRR3(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0,
+def binomCRR3v4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0,
                     american=True,
                     steps=100, valueToFind=6, mktValue=0):
         optionsPrice = np.zeros((steps + 1))
@@ -47,11 +47,11 @@ def binomCRR3(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
             delta1 = (a - b) / (underlying * u * u - underlying * u * d)
             delta2 = (b - c) / (underlying * u * d - underlying * d * d)
             gamma = (delta1 - delta2) / ((underlying * u * u - underlying * d * d) / 2)
-            vega = binomCRR3(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps, 0,
+            vega = binomCRR3v4(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps, 0,
                                0) - prima
 
             theta = (b - optionsPrice[0]) / (2 * h * 365)
-            rho = binomCRR3(contract, underlying, strike, life_days, vol, rf + 0.01, cp, div, american, steps, 0,
+            rho = binomCRR3v4(contract, underlying, strike, life_days, vol, rf + 0.01, cp, div, american, steps, 0,
                               0) - prima
             cont = 0
             impliedVol = vol
@@ -64,7 +64,7 @@ def binomCRR3(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
 
                 while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
                     impliedVol += (dif / vega / 100)
-                    dif = mktValue - binomCRR3(contract, underlying, strike, life_days, impliedVol, rf, cp, div,
+                    dif = mktValue - binomCRR3v4(contract, underlying, strike, life_days, impliedVol, rf, cp, div,
                                                  american, steps, 0, 0)
                     cont += 1
                     # vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
@@ -75,7 +75,7 @@ def binomCRR3(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
 
 if __name__=='__main__':
     print('__main__')
-    print(binomCRR3())
+    print("Modelo binomCRR3v4 :\n",binomCRR3v4())
 
 else:
     print("Nombre de modelo:",__name__)

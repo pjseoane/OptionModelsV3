@@ -1,5 +1,11 @@
 import numpy as np
 import math
+
+#contingent_payoff = lambda st, k,cp: max((st - k)*cp, 0)
+
+#ivVega=lambda model, accuracy, mktVal, prima,contract, underlying, strike, life_days, vol, rf, cp, div,american, steps:
+
+
 def payoff(underlying, strike, cp):
     return max((underlying - strike) * cp, 0)
 
@@ -17,3 +23,26 @@ def fillDerivativesArray(prima, delta, gamma, vega, theta, rho,impVlt,cont):
     derivatives[6]=  impVlt
     derivatives[7]=  cont
     return derivatives
+
+def ivVega():
+    return
+
+def ivBiseccion():
+    return
+
+def biseccion(func, min, max, accuracy, maxIterations):
+    count = 0
+    mid = (min + max) / 2
+    dif = func(mid)
+
+    while (abs(dif) > accuracy and count < maxIterations):
+        if (dif >= 0):
+            max = mid
+        else:
+            min = mid
+            mid = (min + max) / 2
+            dif = func(mid)
+
+            count += 1
+
+        return (mid)
