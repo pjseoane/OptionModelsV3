@@ -6,8 +6,8 @@ import math
 import sys
 from scipy import stats
 
-sys.path.append('C:/Users/pauli/Dropbox/Python/OptionModels')
-sys.path.append('C:/Users/pseoane/Dropbox/Python/OptionModels')
+sys.path.append('C:/Users/pauli/Dropbox/Python/optionModels')
+sys.path.append('C:/Users/pseoane/Dropbox/Python/optionModels')
 
 def payoff(underlying, strike, cp):
     return max((underlying - strike) * cp, 0)

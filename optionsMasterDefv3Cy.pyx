@@ -2,8 +2,8 @@ import numpy as np
 import math
 import sys
 
-#sys.path.append('C:/Users/pauli/Dropbox/Python/OptionModels/Cython')
-#sys.path.append('C:/Users/pseoane/Dropbox/Python/OptionModels/Cython')
+#sys.path.append('C:/Users/pauli/Dropbox/Python/optionModels/Cython')
+#sys.path.append('C:/Users/pseoane/Dropbox/Python/optionModels/Cython')
 
 from scipy import stats
 

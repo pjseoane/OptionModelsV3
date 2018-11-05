@@ -3,7 +3,7 @@ import math
 
 """ Para llamar a este modulo desde otro file usar:
 import sys
-sys.path.append('C:/Users/pauli/Dropbox/Python/OptionModels')
+sys.path.append('C:/Users/pauli/Dropbox/Python/optionModels')
 esto coloca a ese path en el sistema
 
 """
