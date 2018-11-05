@@ -36,8 +36,7 @@ def binomCRR3v4(contract="S", underlying=100, strike=100, life_days=365, vol=.30
                 if (american == 1):
                     assetAtNode = underlying * math.pow(u, steps - i - j - 1) * math.pow(d, j)
                     optionsPrice[j] = max(cf.payoff(assetAtNode, strike, cp), optionAtNode)
-            # else:
-            #    optionsPrice[j] = optionAtNode
+
 
         if (valueToFind == 0):
             return (optionsPrice[0])
@@ -54,22 +53,13 @@ def binomCRR3v4(contract="S", underlying=100, strike=100, life_days=365, vol=.30
             rho = binomCRR3v4(contract, underlying, strike, life_days, vol, rf + 0.01, cp, div, american, steps, 0,
                               0) - prima
             cont = 0
+
             impliedVol = vol
+            if mktValue > 0:  # Calculo de implied Vlts
+                difToModel = lambda vlt: mktValue - binomCRR3v4(contract, underlying, strike, life_days, vlt, rf, cp, div,
+                                                              american, steps, 0, 0)
+                impliedVol = cf.ivVega(difToModel, vol, vega, 0.0001, 20)
 
-            if mktValue > 0:
-                accuracy = 0.0001
-                # cont = 0
-                dif = mktValue - prima
-                # impliedVol = vol
-
-                while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
-                    impliedVol += (dif / vega / 100)
-                    dif = mktValue - binomCRR3v4(contract, underlying, strike, life_days, impliedVol, rf, cp, div,
-                                                 american, steps, 0, 0)
-                    cont += 1
-                    # vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
-            # else:
-            #    impliedVol = vol
             return cf.fillDerivativesArray(prima, delta, gamma, vega, theta, rho, impliedVol, cont)
 
 

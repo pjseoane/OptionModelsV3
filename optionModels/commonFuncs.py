@@ -24,10 +24,16 @@ def fillDerivativesArray(prima, delta, gamma, vega, theta, rho,impVlt,cont):
     derivatives[7]=  cont
     return derivatives
 
-def ivVega(func, vega, accuracy,maxIterations):
-    pass
-    return
+def ivVega(func, vol, vega, accuracy,maxIterations):
+    cont = 0
+    impliedVol = vol
+    dif=func(vol)
+    while (abs(dif) > accuracy and cont < maxIterations and impliedVol > 0.001):
+        impliedVol += (dif / vega / 100)
+        dif = func(impliedVol)
+        cont += 1
 
+    return impliedVol
 
 def biseccion(func, min, max, accuracy, maxIterations):
     count = 1

@@ -37,19 +37,10 @@ def blackScholes(contract="S", underlying=100, strike=100, life_days=365, vol=.3
         return prima
     else:
         impliedVol = vol
-        cont = 0
-
-        if mktValue>0:
-            accuracy=0.0001
-            dif = mktValue - prima
-            #impliedVol = vol
-
-            while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
-                impliedVol += (dif / vega / 100)
-                dif = mktValue - blackScholes(contract, underlying, strike, life_days, impliedVol, riskFree, cp, div,0,0)
-                cont += 1
-                #vol=impliedVol  #??para actualizar todas las greeks a la nueva vol
-        return cf.fillDerivativesArray(prima, delta, gamma, vega, theta, rho, impliedVol, cont)
+        if mktValue > 0:  # Calculo de implied Vlts
+            difToModel = lambda vlt: mktValue - blackScholes(contract, underlying, strike, life_days, vlt, riskFree, cp, div, 0, 0)
+            impliedVol = cf.ivVega(difToModel, vol, vega, 0.0001, 20)
+        return cf.fillDerivativesArray(prima, delta, gamma, vega, theta, rho, impliedVol, 0)
 
 
 
