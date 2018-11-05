@@ -1,23 +1,19 @@
 
 import math
 import numpy as np
-from optionModels.commonFuncs import fillDerivativesArray
-from optionModels.commonFuncs import payoff
-from optionModels.commonFuncs import driftCalc
+import optionModels.commonFuncs as cf
 
 
-
-def binomialCRR3():
-    def binomCRR3v2(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0,
+def binomCRR3(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0,
                     american=True,
-                    steps=1000, valueToFind=6, mktValue=0):
+                    steps=100, valueToFind=6, mktValue=0):
         optionsPrice = np.zeros((steps + 1))
 
         # Basic calculations
         h = life_days / 365 / steps
         u = math.exp(vol * math.sqrt(h))  # upFactor
         d = math.exp(-vol * math.sqrt(h))  # DownFactor
-        drift = driftCalc(contract, rf, h)
+        drift = cf.driftCalc(contract, rf, h)
 
         q = (drift - d) / (u - d)
         qx = 1 - q
@@ -25,7 +21,7 @@ def binomialCRR3():
         # Fill array Boundary Conditions
         for i in range(0, steps + 1):
             assetAtNode = underlying * math.pow(u, (steps - i)) * pow(d, i)
-            optionsPrice[i] = payoff(assetAtNode, strike, cp)
+            optionsPrice[i] = cf.payoff(assetAtNode, strike, cp)
 
         # Rolling Backward
         for i in range(0, steps):
@@ -39,7 +35,7 @@ def binomialCRR3():
 
                 if (american == 1):
                     assetAtNode = underlying * math.pow(u, steps - i - j - 1) * math.pow(d, j)
-                    optionsPrice[j] = max(payoff(assetAtNode, strike, cp), optionAtNode)
+                    optionsPrice[j] = max(cf.payoff(assetAtNode, strike, cp), optionAtNode)
             # else:
             #    optionsPrice[j] = optionAtNode
 
@@ -51,11 +47,11 @@ def binomialCRR3():
             delta1 = (a - b) / (underlying * u * u - underlying * u * d)
             delta2 = (b - c) / (underlying * u * d - underlying * d * d)
             gamma = (delta1 - delta2) / ((underlying * u * u - underlying * d * d) / 2)
-            vega = binomCRR3v2(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps, 0,
+            vega = binomCRR3(contract, underlying, strike, life_days, vol + 0.01, rf, cp, div, american, steps, 0,
                                0) - prima
 
             theta = (b - optionsPrice[0]) / (2 * h * 365)
-            rho = binomCRR3v2(contract, underlying, strike, life_days, vol, rf + 0.01, cp, div, american, steps, 0,
+            rho = binomCRR3(contract, underlying, strike, life_days, vol, rf + 0.01, cp, div, american, steps, 0,
                               0) - prima
             cont = 0
             impliedVol = vol
@@ -68,18 +64,18 @@ def binomialCRR3():
 
                 while (abs(dif) > accuracy and cont < 20 and impliedVol > 0.005):
                     impliedVol += (dif / vega / 100)
-                    dif = mktValue - binomCRR3v2(contract, underlying, strike, life_days, impliedVol, rf, cp, div,
+                    dif = mktValue - binomCRR3(contract, underlying, strike, life_days, impliedVol, rf, cp, div,
                                                  american, steps, 0, 0)
                     cont += 1
                     # vol=impliedVol  (#??para actualizar todas las greeks a la nueva vol
             # else:
             #    impliedVol = vol
-            return fillDerivativesArray(prima, delta, gamma, vega, theta, rho, impliedVol, cont)
+            return cf.fillDerivativesArray(prima, delta, gamma, vega, theta, rho, impliedVol, cont)
 
 
 if __name__=='__main__':
     print('__main__')
-    print(binomialCRR3())
+    print(binomCRR3())
 
 else:
     print("Nombre de modelo:",__name__)
