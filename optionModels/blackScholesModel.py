@@ -1,7 +1,21 @@
 #import math
 from scipy import stats
 import math
-import numpy as np
+from optionModels.commonFuncs import fillDerivativesArray as fd
+
+"""
+def fillDerivativesArray(prima, delta, gamma, vega, theta, rho, impVlt, cont):
+    derivatives = np.zeros(10)
+    derivatives[0] = prima
+    derivatives[1] = delta
+    derivatives[2] = gamma
+    derivatives[3] = vega
+    derivatives[4] = theta
+    derivatives[5] = rho
+    derivatives[6] = impVlt
+    derivatives[7] = cont
+    return derivatives
+"""
 
 
 def blackScholes(contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=-1, div=0,valueToFind=6,mktValue=0):
@@ -48,19 +62,13 @@ def blackScholes(contract="S", underlying=100, strike=100, life_days=365, vol=.3
                 dif = mktValue - blackScholes(contract, underlying, strike, life_days, impliedVol, riskFree, cp, div,0,0)
                 cont += 1
                 #vol=impliedVol  #??para actualizar todas las greeks a la nueva vol
-        #return fillDerivativesArray(prima, delta, gamma, vega, theta, rho, impliedVol, cont)
-        derivatives = np.zeros(10)
-        derivatives[0] = prima
-        derivatives[1] = delta
-        derivatives[2] = gamma
-        derivatives[3] = vega
-        derivatives[4] = theta
-        derivatives[5] = rho
-        derivatives[6] = impliedVol
-        derivatives[7] = cont
-        return derivatives
+        return fd(prima, delta, gamma, vega, theta, rho, impliedVol, cont)
+
+
 
 if __name__=='__main__':
     print('__main__')
+    print(blackScholes())
 else:
-    print(__name__)
+    print("Nombre de modelo:",__name__)
+
