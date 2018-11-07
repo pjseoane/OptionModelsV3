@@ -1,6 +1,6 @@
 import math
 from optionModelsClasses import cBinomialMask as cBinom
-
+#1
 
 class cBinomJR(cBinom.cBinomialMask):
     def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0
