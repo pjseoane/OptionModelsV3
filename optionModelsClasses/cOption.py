@@ -7,6 +7,7 @@ class cOption:
         self.contract = contract
         self.underlying = underlying
         self.strike = strike
+        self.life_days=life_days
         self.dayYear = life_days / 365
         self.vol = vol
         self.riskFree = riskFree

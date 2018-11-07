@@ -10,7 +10,7 @@ class cBlackScholes(cOpt.cOption):
                  mktValue=0):
         super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, mktValue)
 
-        self.life_days = life_days
+        #self.life_days = life_days
         # self.derivatives = self.calc()
         self.calc()
 
@@ -43,6 +43,8 @@ class cBlackScholes(cOpt.cOption):
             self.cp * d2) / 100  # Hull pag 317
 
         self.arr = self.fillDerivativesArray(self.prima, self.delta, self.gamma, self.vega, self.theta, self.rho, 0, 0)
+
+
 
     def impliedVol(self):
         impliedVol = self.vol

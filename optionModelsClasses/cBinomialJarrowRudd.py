@@ -1,3 +1,4 @@
+import math
 from optionModelsClasses import cBinomialMask as cBinom
 
 
@@ -6,82 +7,54 @@ class cBinomJR(cBinom.cBinomialMask):
                  , american=True, steps=100, mktValue=0):
         super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, american, steps, mktValue)
 
+        #self.life_days = life_days
         self.calc()
 
-    def buildUnderlyingTree(self, u, d):
-
-        undva
-        l = np.zeros((self.step s +1, self.step s +1))
-        undval[0, 0] = self.underlying
-
-        for i in range(1, self.step s +1):
-            undval[i, 0] = undval[i - 1, 0] * u
-            for j in range(1, i + 1):
-                undval[i, j] = undval[i - 1, j - 1] * d
-        return undval
-
-    def buildOptionTree(self, p, drift):
-        opttre
-        e = np.zeros((self.step s +1, self.step s +1))
-
-        p
-        x = 1 - p
-        for j in range(self.step s +1):
-            opttree[self.steps, j] = max(0, self.payoff(self.stkval[self.steps, j], self.strike))
-
-        for m in range(self.steps): i = self.steps - m - 1
-        for j in range(i + 1):
-            opttree[i, j] = (p * opttre e[i +1, j]+px * opt t re e[i +1, j+1]) / dri
-            f
-            t
-
-            if self.american:
-                opttree[i, j] = max(opttr
-                ee[i, j], self.payo
-                ff(self.stkval[i, j], self.stri
-                ke) )
-        return opttree
 
     def calc(self):
         # Basic calculations
 
         drift = self.drift()
-        u = exp((self.riskFree - 0.5 * pow(sel f.vo l, 2)) * self.h + s
-        elf.vol * sq
-        r
-        t(self.h) )
-        d = exp((self.riskFree - 0.5 * pow(sel f.vo l, 2)) * self.h - s
-        elf.vol * sq
-        r
-        t(self.h) )
+        u = math.exp((self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h + self.vol * math.sqrt(self.h) )
+        d = math.exp((self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h - self.vol * math.sqrt(self.h) )
         p = (drift - d) / (u - d)  # px=(1-p)
 
         # ------
-        self.stkval = self.buildUnderlying
-        T
-        ree(u, d)
-        self.optva
-        l = self.buildOptionTree(p, drift)
+        "arma los trees con las funciones que estan en cBinomial Mask"
+        self.stkval = self.buildUnderlyingTree(u,d)
+        self.optval = self.buildOptionTree(p, drift,self.cp)
         # ---- -
 
         self.prima = self.optval[0, 0]
-        self.delta = (self.optval[1, 1] - se l f.optval[1, 0]) / (s e lf.stkval[1, 1] -se l f.stkval[1, 0])
-        self.gamm
-        a = ((self.optval[2, 0] - s e lf.optval[2, 1]) / (s e lf.stkval[2, 0] -se l f.stkval[2, 1]) - (s
-                                                                                                       e lf.optval[2, 1] -se l f
-                                                                                                       .optval[2, 2]) / (
-                 s e lf.stkval[2, 1] -se l f.stkval[2, 2])) / ((self.stkval[2, 0] - self
-                                                                .stkval[2, 2]) / 2)
-        self.th
-        eta = (self.optval[2, 1] - sel f.optval[0, 0]) / (2 * 3 65 * self.h)
-        s
-        e
-        lf.v
-        ega = 0
-        self.rho = 0
+        self.delta = (self.optval[1, 1] - self.optval[1, 0]) / (self.stkval[1, 1] -self.stkval[1, 0])
+        self.gamma = ((self.optval[2, 0] - self.optval[2, 1]) / (self.stkval[2, 0] -self.stkval[2, 1]) - (self.optval[2, 1] -self.optval[2, 2]) / (self.stkval[2, 1] -self.stkval[2, 2])) / ((self.stkval[2, 0] - self.stkval[2, 2]) / 2)
+        self.theta = (self.optval[2, 1] - self.optval[0, 0]) / (2 * 365 * self.h)
+        #self.vega = cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol + 0.01, self.riskFree, self.cp, self.div,self.american, self.steps, 0).prima - self.prima
+        #self.rho =  cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol, self.riskFree+0.01, self.cp, self.div,self.american, self.steps, 0).prima- self.prima
 
-        return sup
-        e
-        r().fillDerivativesArray(self.prima, self.delta, self.gamma, self.vega, s
-        elf.theta, s
-        elf.rho)
+
+        self.arr=self.fillDerivativesArray(self.prima, self.delta, self.gamma, self.vega, self.theta, self.rho, 0,0)
+
+    def impliedVol(self):
+        #return self.mktValue
+
+        impliedVol = self.vol
+        if self.mktValue > 0:  # Calculo de implied Vlts
+            difToModel = lambda vlt: self.mktValue - cBinomJR(self.contract, self.underlying, self.strike,
+                                                                       self.life_days, vlt, self.riskFree, self.cp,
+                                                                       self.div, self.american,self.steps,0).prima
+            impliedVol = self.ivVega(difToModel, self.vol, self.vega, 0.0001, 20)
+        return impliedVol
+
+
+if __name__ == '__main__':
+    print('__main__')
+
+    a = cBinomJR("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,11)
+    print("Modelo Jarrow Rudd prima:\n", a.prima)
+    print("Modelo Jarrow Rudd arr:\n", a.arr)
+    print("Modelo Jarrow Rudd iv:\n", a.impliedVol())
+
+
+else:
+    print("Nombre de modelo:", __name__)
