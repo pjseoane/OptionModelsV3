@@ -12,6 +12,7 @@ class cBinomialMask(cOpt.cOption):
 
         self.american = american
         self.steps = steps
+        #self.valueToFind=valueToFind
         self.h = self.dayYear / self.steps  # interv
 
         #self.derivatives = self.calc()

@@ -29,8 +29,13 @@ class cBinomJR(cBinom.cBinomialMask):
         self.delta = (self.optval[1, 1] - self.optval[1, 0]) / (self.stkval[1, 1] -self.stkval[1, 0])
         self.gamma = ((self.optval[2, 0] - self.optval[2, 1]) / (self.stkval[2, 0] -self.stkval[2, 1]) - (self.optval[2, 1] -self.optval[2, 2]) / (self.stkval[2, 1] -self.stkval[2, 2])) / ((self.stkval[2, 0] - self.stkval[2, 2]) / 2)
         self.theta = (self.optval[2, 1] - self.optval[0, 0]) / (2 * 365 * self.h)
-        #self.vega = cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol + 0.01, self.riskFree, self.cp, self.div,self.american, self.steps, 0).prima - self.prima
-        #self.rho =  cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol, self.riskFree+0.01, self.cp, self.div,self.american, self.steps, 0).prima- self.prima
+        self.vega=0
+        self.rho=0
+        #esto para qiue no entre en recursion el caalculo de veg ay rho
+        #if self.valueToFind >0:
+        if self.mktValue>0:
+            self.vega = cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol + 0.01, self.riskFree, self.cp, self.div,self.american, self.steps, 0).prima - self.prima
+            self.rho =  cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol, self.riskFree+0.01, self.cp, self.div,self.american, self.steps, 0).prima- self.prima
 
 
         self.arr=self.fillDerivativesArray(self.prima, self.delta, self.gamma, self.vega, self.theta, self.rho, 0,0)
@@ -39,10 +44,10 @@ class cBinomJR(cBinom.cBinomialMask):
         #return self.mktValue
 
         impliedVol = self.vol
-        if self.mktValue > 0:  # Calculo de implied Vlts
+        if self.mktValue > 0 and self.vega>0 :  # Calculo de implied Vlts
             difToModel = lambda vlt: self.mktValue - cBinomJR(self.contract, self.underlying, self.strike,
                                                                        self.life_days, vlt, self.riskFree, self.cp,
-                                                                       self.div, self.american,self.steps,0).prima
+                                                                       self.div, self.american,self.steps, 0).prima
             impliedVol = self.ivVega(difToModel, self.vol, self.vega, 0.0001, 20)
         return impliedVol
 
@@ -50,7 +55,7 @@ class cBinomJR(cBinom.cBinomialMask):
 if __name__ == '__main__':
     print('__main__')
 
-    a = cBinomJR("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,11)
+    a = cBinomJR("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,10)
     print("Modelo Jarrow Rudd prima:\n", a.prima)
     print("Modelo Jarrow Rudd arr:\n", a.arr)
     print("Modelo Jarrow Rudd iv:\n", a.impliedVol())
