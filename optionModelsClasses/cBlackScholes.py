@@ -2,14 +2,17 @@ import math
 
 from scipy import stats
 
-from optionModelsClasses import cOption as cO
+from optionModelsClasses import cOption as cOpt
 
 
-class cBlackScholes(cO.cOption):
-    def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=-1, div=0):
-        super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div)
+class cBlackScholes(cOpt.cOption):
+    def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=-1, div=0,
+                 mktValue=0):
+        super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, mktValue)
 
-        self.derivatives = self.calc()
+        self.life_days = life_days
+        # self.derivatives = self.calc()
+        self.calc()
 
     def calc(self):
         dayYear = self.dayYear
@@ -41,12 +44,27 @@ class cBlackScholes(cO.cOption):
 
         self.arr = self.fillDerivativesArray(self.prima, self.delta, self.gamma, self.vega, self.theta, self.rho, 0, 0)
 
+    def impliedVol(self):
+        impliedVol = self.vol
+        if self.mktValue > 0:  # Calculo de implied Vlts
+            difToModel = lambda vlt: self.mktValue - cBlackScholes(self.contract, self.underlying, self.strike,
+                                                                   self.life_days, vlt, self.riskFree, self.cp,
+                                                                   self.div, 0).prima
+            impliedVol = self.ivVega(difToModel, self.vol, self.vega, 0.0001, 20)
+        return impliedVol
+
+
+
 
 if __name__ == '__main__':
     print('__main__')
     # a=cBlackScholes('S',100, 100, 365,0.30, .03,  1, 0)
-    a = cBlackScholes()
-    # option = cOpt(100, 100, 0.03, .30, 100, 1, 1)
-    print("Modelo BlackScholes :\n", a.prima, a.arr)
+    # a = cBlackScholes()
+    a = cBlackScholes("S", 100, 100, 365, 0.3, .03, -1, 0, 11)
+    print("Modelo BlackScholes prima:\n", a.prima)
+    print("Modelo BlackScholes arr:\n", a.arr)
+    print("Modelo BlackScholes iv:\n", a.impliedVol())
+
+
 else:
     print("Nombre de modelo:", __name__)
