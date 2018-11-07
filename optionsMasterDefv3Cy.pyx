@@ -1,11 +1,7 @@
-import numpy as np 
-import math
-import sys
+import numpy as np
 
-#sys.path.append('C:/Users/pauli/Dropbox/Python/optionModels/Cython')
-#sys.path.append('C:/Users/pseoane/Dropbox/Python/optionModels/Cython')
-
-from scipy import stats
+# sys.path.append('C:/Users/pauli/Dropbox/Python/optionModelsDEF/Cython')
+# sys.path.append('C:/Users/pseoane/Dropbox/Python/optionModelsDEF/Cython')
 
 cimport numpy as np
 cimport cython

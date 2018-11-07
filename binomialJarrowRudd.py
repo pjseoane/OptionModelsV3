@@ -1,9 +1,10 @@
-import numpy as np 
 import math
+
+import numpy as np
 
 """ Para llamar a este modulo desde otro file usar:
 import sys
-sys.path.append('C:/Users/pauli/Dropbox/Python/optionModels')
+sys.path.append('C:/Users/pauli/Dropbox/Python/optionModelsDEF')
 esto coloca a ese path en el sistema
 
 """

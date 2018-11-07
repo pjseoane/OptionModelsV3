@@ -1,5 +1,7 @@
-import numpy as np
 import math
+
+import numpy as np
+
 
 #contingent_payoff = lambda st, k,cp: max((st - k)*cp, 0)
 

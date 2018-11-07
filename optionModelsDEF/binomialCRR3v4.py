@@ -1,7 +1,9 @@
 
 import math
+
 import numpy as np
-import optionModels.commonFuncs as cf
+
+import optionModelsDEF.commonFuncs as cf
 
 
 def binomCRR3v4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0,

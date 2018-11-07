@@ -1,13 +1,14 @@
 """
 Linea 1, Branch2
 """
-import numpy as np
 import math
 import sys
+
+import numpy as np
 from scipy import stats
 
-sys.path.append('C:/Users/pauli/Dropbox/Python/optionModels')
-sys.path.append('C:/Users/pseoane/Dropbox/Python/optionModels')
+sys.path.append('C:/Users/pauli/Dropbox/Python/optionModelsDEF')
+sys.path.append('C:/Users/pseoane/Dropbox/Python/optionModelsDEF')
 
 def payoff(underlying, strike, cp):
     return max((underlying - strike) * cp, 0)

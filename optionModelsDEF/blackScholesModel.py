@@ -1,8 +1,10 @@
 #import math
-from scipy import stats
 import math
-#from optionModels.commonFuncs import fillDerivativesArray as fd
-import optionModels.commonFuncs as cf
+
+from scipy import stats
+
+# from optionModelsDEF.commonFuncs import fillDerivativesArray as fd
+import optionModelsDEF.commonFuncs as cf
 
 
 def blackScholes(contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=-1, div=0,valueToFind=6,mktValue=0):
