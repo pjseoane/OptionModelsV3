@@ -91,7 +91,7 @@ class cBinomJR(cOpt.cOption):
 if __name__ == '__main__':
     print('__main__')
 
-    a = cBinomJR("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,0)
+    a = cBinomJR("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,10)
     print("Modelo Jarrow Rudd prima:\n", a.prima)
     print("Modelo Jarrow Rudd arr:\n", a.arr)
     print("Modelo Jarrow Rudd iv:\n", a.impliedVol())

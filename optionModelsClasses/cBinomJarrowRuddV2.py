@@ -1,5 +1,5 @@
 import math
-#4
+#5
 
 from optionModelsClasses import cBinomialMask as cBinom
 
@@ -20,6 +20,7 @@ class cBinomJRV2(cBinom.cBinomMask):
         self.stkval = self.buildUnderlyingTree(u, d)
         self.optval = self.buildOptionTree(p, drift, self.cp)
 
+        #Calculo los valores en cBinomialMask ?
         self.prima = self.optval[0, 0]
         self.delta = (self.optval[1, 1] - self.optval[1, 0]) / (self.stkval[1, 1] - self.stkval[1, 0])
         self.gamma = ((self.optval[2, 0] - self.optval[2, 1]) / (self.stkval[2, 0] - self.stkval[2, 1]) - (
@@ -39,8 +40,11 @@ class cBinomJRV2(cBinom.cBinomMask):
 
         self.arr = self.fillDerivativesArray(self.prima, self.delta, self.gamma, self.vega, self.theta, self.rho, 0, 0)
 
-    def impVol(self):
-        return self.impliedVol(cBinomJRV2,self.vega,0.0001)
+    def impVolV(self,accuracy):
+        return self.impliedVolV(cBinomJRV2,self.vega,accuracy)
+
+    def impVolB(self,accuracy):
+        return self.impliedVolB(cBinomJRV2, self.prima, accuracy)
 
 
 if __name__ == '__main__':
@@ -49,7 +53,8 @@ if __name__ == '__main__':
     a = cBinomJRV2("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,10)
     print("Modelo Jarrow Rudd V2 prima:\n", a.prima)
     print("Modelo Jarrow Rudd V2 arr:\n", a.arr)
-    print("Modelo Jarrow Rudd V2 iv:\n", a.impVol())
+    print("Modelo Jarrow Rudd V2 ivV:\n", a.impVolV(0.001))
+    print("Modelo Jarrow Rudd V2 ivB:\n", a.impVolB(0.001))
 
 
 else:

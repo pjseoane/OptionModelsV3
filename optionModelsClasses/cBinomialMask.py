@@ -10,6 +10,7 @@ class cBinomMask(cOpt.cOption):
 
         self.american = american
         self.steps = steps
+        self.mktValue=mktValue
         self.h = self.dayYear / self.steps
 
     def drift(self):
@@ -27,24 +28,26 @@ class cBinomMask(cOpt.cOption):
             return self.undval
 
     def buildOptionTree(self, p, drift, cp):
-            opttree = np.zeros((self.steps + 1, self.steps + 1))
+            optTree = np.zeros((self.steps + 1, self.steps + 1))
 
             px = 1 - p
             for j in range(self.steps + 1):
-                opttree[self.steps, j] = max(0, self.payoff(self.undval[self.steps, j], self.strike, cp))
+                optTree[self.steps, j] = max(0, self.payoff(self.undval[self.steps, j], self.strike, cp))
 
             for m in range(self.steps):
                 i = self.steps - m - 1
                 for j in range(i + 1):
-                    opttree[i, j] = (p * opttree[i + 1, j] + px * opttree[i + 1, j + 1]) / drift
+                    optTree[i, j] = (p * optTree[i + 1, j] + px * optTree[i + 1, j + 1]) / drift
 
                     if self.american:
-                        opttree[i, j] = max(opttree[i, j], self.payoff(self.undval[i, j], self.strike, cp))
-            return opttree
+                        optTree[i, j] = max(optTree[i, j], self.payoff(self.undval[i, j], self.strike, cp))
 
 
-    def impliedVol(self,model,vega,accuracy):
-        #return self.mktValue
+            return optTree
+
+
+    def impliedVolV(self,model,vega,accuracy):
+
 
         impliedVol = self.vol
         if self.mktValue > 0 and vega>0 :  # Calculo de implied Vlts
@@ -53,3 +56,19 @@ class cBinomMask(cOpt.cOption):
                                                                        self.div, self.american,self.steps, 0).prima
             impliedVol = self.ivVega(difToModel, self.vol, vega, accuracy, 20)
         return impliedVol
+
+
+    def impliedVolB(self, model, teorica, accuracy):
+        difToModel = lambda vlt: self.mktValue - model(self.contract, self.underlying, self.strike,
+                                                       self.life_days, vlt, self.riskFree, self.cp,
+                                                       self.div, self.american, self.steps, 0).prima
+        if(teorica<=self.mktValue):
+                        mini=self.vol
+                        maxi=self.vol*3
+        else:
+                        mini=0
+                        maxi=self.vol
+
+        return self.biseccion(difToModel,mini,maxi,accuracy,50)
+
+

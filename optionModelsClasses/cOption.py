@@ -38,5 +38,24 @@ class cOption:
             impliedVol += (dif / vega / 100)
             dif = func(impliedVol)
             cont += 1
-
+        #return cont
         return impliedVol
+
+    def biseccion(self, model, min, max, accuracy, maxIterations):
+        count = 1
+        mid = (min + max) / 2
+        dif = model(mid)
+
+        while (abs(dif) > accuracy and count < maxIterations):
+            if (dif <= 0):
+                max = mid
+            else:
+                min = mid
+
+            mid = (min + max) / 2
+            dif = model(mid)
+
+            count += 1
+
+        #return count
+        return (mid)
