@@ -1,14 +1,50 @@
+#Este modelo anda OK 7 Nov 2018
+
 import math
-from optionModelsClasses import cBinomialMask as cBinom
+import numpy as np
+
+from optionModelsClasses import cOption as cOpt
 #2
 
-class cBinomJR(cBinom.cBinomialMask):
+class cBinomJR(cOpt.cOption):
     def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0
                  , american=True, steps=100, mktValue=0):
-        super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, american, steps, mktValue)
+        super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, mktValue)
 
-        #self.life_days = life_days
+        self.american = american
+        self.steps = steps
+        self.h = self.dayYear / self.steps
         self.calc()
+
+    def drift(self):
+        return (1 if (self.contract == "F") else math.exp(self.riskFree * self.h))
+
+    def buildUnderlyingTree(self, u, d):
+
+        self.undval = np.zeros((self.steps + 1, self.steps + 1))
+        self.undval[0, 0] = self.underlying
+
+        for i in range(1, self.steps + 1):
+            self.undval[i, 0] = self.undval[i - 1, 0] * u
+            for j in range(1, i + 1):
+                self.undval[i, j] = self.undval[i - 1, j - 1] * d
+        return self.undval
+
+    def buildOptionTree(self, p, drift,cp):
+        opttree = np.zeros((self.steps + 1, self.steps + 1))
+
+        px = 1 - p
+        for j in range(self.steps + 1):
+            opttree[self.steps, j] = max(0, self.payoff(self.undval[self.steps, j], self.strike,cp))
+
+        for m in range(self.steps):
+            i = self.steps - m - 1
+            for j in range(i + 1):
+                opttree[i, j] = (p * opttree[i + 1, j] + px * opttree[i + 1, j + 1]) / drift
+
+                if self.american:
+                    opttree[i, j] = max(opttree[i, j], self.payoff(self.undval[i, j], self.strike,cp))
+        return opttree
 
 
     def calc(self):
@@ -29,13 +65,13 @@ class cBinomJR(cBinom.cBinomialMask):
         self.delta = (self.optval[1, 1] - self.optval[1, 0]) / (self.stkval[1, 1] -self.stkval[1, 0])
         self.gamma = ((self.optval[2, 0] - self.optval[2, 1]) / (self.stkval[2, 0] -self.stkval[2, 1]) - (self.optval[2, 1] -self.optval[2, 2]) / (self.stkval[2, 1] -self.stkval[2, 2])) / ((self.stkval[2, 0] - self.stkval[2, 2]) / 2)
         self.theta = (self.optval[2, 1] - self.optval[0, 0]) / (2 * 365 * self.h)
-        self.vega=0
-        self.rho=0
-        #esto para qiue no entre en recursion el caalculo de veg ay rho
-        #if self.valueToFind >0:
-        if self.mktValue>0:
-            self.vega = cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol + 0.01, self.riskFree, self.cp, self.div,self.american, self.steps, 0).prima - self.prima
-            self.rho =  cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol, self.riskFree+0.01, self.cp, self.div,self.american, self.steps, 0).prima- self.prima
+
+        self.vega = 0
+        self.rho = 0
+
+        if self.mktValue > -1:
+            self.vega = cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol + 0.01, self.riskFree, self.cp, self.div,self.american, self.steps, -1).prima - self.prima
+            self.rho =  cBinomJR(self.contract, self.underlying, self.strike, self.life_days, self.vol, self.riskFree+0.01, self.cp, self.div,self.american, self.steps, -1).prima- self.prima
 
 
         self.arr=self.fillDerivativesArray(self.prima, self.delta, self.gamma, self.vega, self.theta, self.rho, 0,0)
@@ -55,7 +91,7 @@ class cBinomJR(cBinom.cBinomialMask):
 if __name__ == '__main__':
     print('__main__')
 
-    a = cBinomJR("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,11)
+    a = cBinomJR("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,0)
     print("Modelo Jarrow Rudd prima:\n", a.prima)
     print("Modelo Jarrow Rudd arr:\n", a.arr)
     print("Modelo Jarrow Rudd iv:\n", a.impliedVol())

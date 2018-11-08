@@ -1,50 +1,55 @@
 import math
-
 import numpy as np
-
 from optionModelsClasses import cOption as cOpt
+#2
 
-
-class cBinomialMask(cOpt.cOption):
-    def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0,
-                 american=True, steps=100, mktValue=0):
-        super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div,mktValue)
+class cBinomMask(cOpt.cOption):
+    def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0
+                 , american=True, steps=100, mktValue=0):
+        super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, mktValue)
 
         self.american = american
         self.steps = steps
-        #self.valueToFind=valueToFind
-        self.h = self.dayYear / self.steps  # interv
-
-        #self.derivatives = self.calc()
+        self.h = self.dayYear / self.steps
 
     def drift(self):
-        return (1 if (self.contract == "F") else math.exp(self.riskFree * self.h))
+            return (1 if (self.contract == "F") else math.exp(self.riskFree * self.h))
 
     def buildUnderlyingTree(self, u, d):
 
-        self.undval = np.zeros((self.steps + 1, self.steps + 1))
-        self.undval[0, 0] = self.underlying
+            self.undval = np.zeros((self.steps + 1, self.steps + 1))
+            self.undval[0, 0] = self.underlying
 
-        for i in range(1, self.steps + 1):
-            self.undval[i, 0] = self.undval[i - 1, 0] * u
-            for j in range(1, i + 1):
-                self.undval[i, j] = self.undval[i - 1, j - 1] * d
-        return self.undval
+            for i in range(1, self.steps + 1):
+                self.undval[i, 0] = self.undval[i - 1, 0] * u
+                for j in range(1, i + 1):
+                    self.undval[i, j] = self.undval[i - 1, j - 1] * d
+            return self.undval
 
-    def buildOptionTree(self, p, drift,cp):
-        opttree = np.zeros((self.steps + 1, self.steps + 1))
+    def buildOptionTree(self, p, drift, cp):
+            opttree = np.zeros((self.steps + 1, self.steps + 1))
 
-        px = 1 - p
-        for j in range(self.steps + 1):
-            opttree[self.steps, j] = max(0, self.payoff(self.undval[self.steps, j], self.strike,cp))
+            px = 1 - p
+            for j in range(self.steps + 1):
+                opttree[self.steps, j] = max(0, self.payoff(self.undval[self.steps, j], self.strike, cp))
 
-        for m in range(self.steps):
-            i = self.steps - m - 1
-            for j in range(i + 1):
-                opttree[i, j] = (p * opttree[i + 1, j] + px * opttree[i + 1, j + 1]) / drift
+            for m in range(self.steps):
+                i = self.steps - m - 1
+                for j in range(i + 1):
+                    opttree[i, j] = (p * opttree[i + 1, j] + px * opttree[i + 1, j + 1]) / drift
 
-                if self.american:
-                    opttree[i, j] = max(opttree[i, j], self.payoff(self.undval[i, j], self.strike,cp))
-        return opttree
+                    if self.american:
+                        opttree[i, j] = max(opttree[i, j], self.payoff(self.undval[i, j], self.strike, cp))
+            return opttree
 
 
+    def impliedVol(self,model,vega,accuracy):
+        #return self.mktValue
+
+        impliedVol = self.vol
+        if self.mktValue > 0 and vega>0 :  # Calculo de implied Vlts
+            difToModel = lambda vlt: self.mktValue - model(self.contract, self.underlying, self.strike,
+                                                                       self.life_days, vlt, self.riskFree, self.cp,
+                                                                       self.div, self.american,self.steps, 0).prima
+            impliedVol = self.ivVega(difToModel, self.vol, vega, accuracy, 20)
+        return impliedVol
