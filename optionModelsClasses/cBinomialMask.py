@@ -47,8 +47,6 @@ class cBinomMask(cOpt.cOption):
 
 
     def impliedVolV(self,model,vega,accuracy):
-
-
         impliedVol = self.vol
         if self.mktValue > 0 and vega>0 :  # Calculo de implied Vlts
             difToModel = lambda vlt: self.mktValue - model(self.contract, self.underlying, self.strike,

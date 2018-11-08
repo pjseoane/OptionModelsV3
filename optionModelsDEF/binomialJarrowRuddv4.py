@@ -6,7 +6,7 @@ import optionModelsDEF.commonFuncs as cf
 
 
 def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0, american=True,
-            steps=100,valueToFind=6,mktValue=0):
+            steps=100,valueToFind=6,mktValue=11):
     """ Price and option using the Jarrow-Rudd binomial model"""
 
 
