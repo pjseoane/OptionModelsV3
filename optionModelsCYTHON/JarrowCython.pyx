@@ -8,8 +8,8 @@ esto coloca a ese path en el sistema
 import math
 
 #import pyximport
-#import numpy as np
-pyximport.install(setup_args=dict(include_dirs=[numpy.get_include()]))
+import numpy as np
+#pyximport.install(setup_args=dict(include_dirs=[numpy.get_include()]))
 #import numpy as np
 
 cimport numpy as np
@@ -22,7 +22,7 @@ cdef extern from "math.h" nogil:
     double fmax(double,double)
 
 
-def jarrowRuddCy(contract, double s, double k,double t,double v,double rf,double cp, double div, int am=False, int n=100,int valueToFind=0,double mktValue=0):
+def jarrowRuddCy(contract='S', double s=100, double k=100,double t=365,double v=.3,double rf=0.03,double cp=-1, double div=0, int am=True, int n=100,int valueToFind=0,double mktValue=0):
     """ Price and option using the Jarrow-Rudd binomial model
 
     s: initial stock price
@@ -104,4 +104,11 @@ def jarrowRuddCy(contract, double s, double k,double t,double v,double rf,double
         derivatives[7]=cont
 
     return derivatives
+
+if __name__ == '__main__':
+    print('__main__')
+    print("Modelo binomJRv4 :\n", jarrowRuddCy())
+
+else:
+    print("Nombre de modelo:", __name__)
 
