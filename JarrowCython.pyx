@@ -7,7 +7,10 @@ esto coloca a ese path en el sistema
 """
 import math
 
-import numpy as np
+#import pyximport
+#import numpy as np
+pyximport.install(setup_args=dict(include_dirs=[numpy.get_include()]))
+#import numpy as np
 
 cimport numpy as np
 cimport cython

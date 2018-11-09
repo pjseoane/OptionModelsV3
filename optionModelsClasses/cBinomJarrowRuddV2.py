@@ -5,7 +5,7 @@ from optionModelsClasses import cBinomialMask as cBinom
 
 class cBinomJRV2(cBinom.cBinomMask):
     def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0
-                 , american=True, steps=100, mktValue=0):
+                 , american=True, steps=100, mktValue=10):
         super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, american, steps,mktValue)
 
         self.calc()
@@ -53,8 +53,9 @@ if __name__ == '__main__':
     a = cBinomJRV2("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,10)
     print("Modelo Jarrow Rudd V2 prima:\n", a.prima)
     print("Modelo Jarrow Rudd V2 arr:\n", a.arr)
-    print("Modelo Jarrow Rudd V2 ivV:\n", a.impVolV(0.001))
-    print("Modelo Jarrow Rudd V2 ivB:\n", a.impVolB(0.001))
+    print("Modelo Jarrow Rudd V2 ivVega:\n", a.impVolV(0.001))
+    print("Modelo Jarrow Rudd V2 ivBiseccion:\n", a.impVolB(0.001))
+    print("Para solo tener la ImpVlt:\n",cBinomJRV2("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,10).impVolV(0.001))
 
 
 else:

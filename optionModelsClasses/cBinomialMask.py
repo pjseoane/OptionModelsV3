@@ -57,16 +57,18 @@ class cBinomMask(cOpt.cOption):
 
 
     def impliedVolB(self, model, teorica, accuracy):
-        difToModel = lambda vlt: self.mktValue - model(self.contract, self.underlying, self.strike,
+        impliedVol = self.vol
+        if self.mktValue > 0:
+            difToModel = lambda vlt: self.mktValue - model(self.contract, self.underlying, self.strike,
                                                        self.life_days, vlt, self.riskFree, self.cp,
                                                        self.div, self.american, self.steps, 0).prima
-        if(teorica<=self.mktValue):
+            if(teorica<=self.mktValue):
                         mini=self.vol
                         maxi=self.vol*3
-        else:
+            else:
                         mini=0
                         maxi=self.vol
 
-        return self.biseccion(difToModel,mini,maxi,accuracy,50)
-
+            return self.biseccion(difToModel,mini,maxi,accuracy,50)
+        return impliedVol
 
