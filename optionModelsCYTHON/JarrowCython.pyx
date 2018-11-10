@@ -105,10 +105,3 @@ def jarrowRuddCy(contract='S', double s=100, double k=100,double t=365,double v=
 
     return derivatives
 
-if __name__ == '__main__':
-    print('__main__')
-    print("Modelo binomJRv4 :\n", jarrowRuddCy())
-
-else:
-    print("Nombre de modelo:", __name__)
-
