@@ -9,7 +9,7 @@ def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
             steps=100,valueToFind=6,mktValue=11):
     """ Price and option using the Jarrow-Rudd binomial model"""
 
-
+    underlying = cf.underlyingValue(contract, underlying, div, life_days / 365)
     # Basic calculations
     h = life_days / 365 / steps
     u = math.exp((rf - 0.5 * math.pow(vol, 2)) * h + vol * math.sqrt(h))

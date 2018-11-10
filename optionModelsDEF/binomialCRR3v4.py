@@ -11,6 +11,7 @@ def binomCRR3v4(contract="S", underlying=100, strike=100, life_days=365, vol=.30
                     steps=100, valueToFind=6, mktValue=0):
         optionsPrice = np.zeros((steps + 1))
 
+        underlying = cf.underlyingValue(contract, underlying, div, life_days / 365)
         # Basic calculations
         h = life_days / 365 / steps
         u = math.exp(vol * math.sqrt(h))  # upFactor
