@@ -4,7 +4,7 @@ import math
 from optionModelsClasses import cBinomialMask as cBinom
 
 class cBinomJRV2(cBinom.cBinomMask):
-    def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0
+    def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0.0
                  , american=True, steps=100, mktValue=10):
         super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, american, steps,mktValue)
 
@@ -50,7 +50,7 @@ class cBinomJRV2(cBinom.cBinomMask):
 if __name__ == '__main__':
     print('__main__')
 
-    a = cBinomJRV2("S", 100, 100, 365, 0.3, .03, -1, 0, True, 100,10)
+    a = cBinomJRV2("S", 100, 100, 365, 0.3, .03, -1, 0.0, True, 100,10)
     print("Modelo Jarrow Rudd V2 prima:\n", a.prima)
     print("Modelo Jarrow Rudd V2 arr:\n", a.arr)
     print("Modelo Jarrow Rudd V2 ivVega:\n", a.impVolV(0.001))

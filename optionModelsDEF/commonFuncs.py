@@ -6,7 +6,8 @@ import numpy as np
 #contingent_payoff = lambda st, k,cp: max((st - k)*cp, 0)
 
 #ivVega=lambda model, accuracy, mktVal, prima,contract, underlying, strike, life_days, vol, rf, cp, div,american, steps:
-
+def underlyingValue(contract,underlying,div,dayYear):
+    return underlying if (contract=="F") else underlying*math.exp(-div*dayYear)
 
 def payoff(underlying, strike, cp):
     return max((underlying - strike) * cp, 0)

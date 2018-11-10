@@ -4,7 +4,7 @@ from optionModelsClasses import cOption as cOpt
 #2
 
 class cBinomMask(cOpt.cOption):
-    def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0
+    def __init__(self, contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=1, div=0.05
                  , american=True, steps=100, mktValue=0):
         super().__init__(contract, underlying, strike, life_days, vol, riskFree, cp, div, mktValue)
 

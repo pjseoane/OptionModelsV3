@@ -7,8 +7,10 @@ from scipy import stats
 import optionModelsDEF.commonFuncs as cf
 
 
-def blackScholes(contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=-1, div=0,valueToFind=6,mktValue=0):
+def blackScholes(contract="S", underlying=100, strike=100, life_days=365, vol=.30, riskFree=0.03, cp=-1, div=0.0,valueToFind=6,mktValue=0):
     dayYear = life_days / 365
+    underlying=cf.underlyingValue(contract,underlying,div,dayYear)
+
     q = div if (contract == "S") else riskFree
 
     d1 = (math.log(underlying / strike) + ((riskFree - q) + 0.5 * math.pow(vol, 2)) * dayYear) / (

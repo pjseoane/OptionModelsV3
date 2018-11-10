@@ -42,6 +42,8 @@ def jarrowRuddCy(contract='S', double s=100, double k=100,double t=365,double v=
     cdef double prima,vega,accuracy,dif,impliedVol
 
     #Basic calculations
+    s=s*math.exp(-div*t/365)
+
     h= t/365/n 
     u= math.exp((rf-0.5*math.pow(v,2))*h+v*math.sqrt(h))
     d= math.exp((rf-0.5*math.pow(v,2))*h-v*math.sqrt(h))

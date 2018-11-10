@@ -1,14 +1,19 @@
 import numpy as np
+import math
 
 
 class cOption:
 
     def __init__(self, contract, underlying, strike, life_days, vol, riskFree, cp, div, mktValue=0):
         self.contract = contract
-        self.underlying = underlying
+        if (contract=='F'):
+            div=0
+
+        self.dayYear = life_days / 365
+        self.underlying = underlying*math.exp(-div*self.dayYear)
         self.strike = strike
         self.life_days=life_days
-        self.dayYear = life_days / 365
+
         self.vol = vol
         self.riskFree = riskFree
         self.cp = cp  # 1 for call -1 for put
