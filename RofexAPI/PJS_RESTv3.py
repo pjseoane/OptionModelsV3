@@ -28,7 +28,15 @@ s = requests.Session()
 #endpointDemo = "http://demo-api.primary.com.ar/"
 #wsEndpointDemo="ws://demo-api.primary.com.ar/"
 #historyOHLC_endpoint = "http://h-api.primary.com.ar/MHD/TradesOHLC/{s}/{fi}/{ff}/{hi}/{hf}"
+
+def buildMessage(type_,level_,marketId_,sym):
+    return "{\"type\":\""+type_+"\",\"level\":"+level_+", \"entries\":[\"BI\", \"OF\"],\"products\":[{\"symbol\":\""+sym+"\",\"marketId\":\""+marketId_+"\"}]}"
+
+
+
 def suscribirContratos():
+
+
     contracts=[]
     contracts.append("RFX20Dic18")
     contracts.append("DoDic18")
