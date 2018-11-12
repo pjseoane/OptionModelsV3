@@ -28,6 +28,11 @@ s = requests.Session()
 #endpointDemo = "http://demo-api.primary.com.ar/"
 #wsEndpointDemo="ws://demo-api.primary.com.ar/"
 #historyOHLC_endpoint = "http://h-api.primary.com.ar/MHD/TradesOHLC/{s}/{fi}/{ff}/{hi}/{hf}"
+def suscribirContratos():
+    contracts=[]
+    contracts.append("RFX20Dic18")
+    contracts.append("DoDic18")
+    return contracts
 
 
 def setURLs():
