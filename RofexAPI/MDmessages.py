@@ -3,23 +3,16 @@ from datetime import datetime
 def MDincoming(msg):
     # Aca es Market Data, esta escuchando novedades
     listaMensajes = []
+    subsMDEvents = []
     # subsMDEvents.append(msg)
-    print("----------------------------------------------")
+    print("En MD incoming++++++++++++++++++++++++++++++++")
 
-    
-    # print("Mensajes:---->", len(subsMDEvents))
-    #global mensajes
-    #mensajes=0
-    #mensajes += 1
-    #print("Mensajes:---->", mensajes)
-
-    print("En MD incoming")
-    """
     # sys.stdout.flush()
     now = datetime.now()
     print(str(now), msg)
 
     # print("before processinf msg:...")
+    timestamp=msg['timestamp']
     symbol = msg['instrumentId']['symbol']
 
     # print (symbol)
@@ -53,8 +46,8 @@ def MDincoming(msg):
     msgArray.append(offerSize)
     listaMensajes.append(msgArray)
 
-    print(symbol, "----->", bid, "/", offer, " SIZE--> ", bidSize, "/", offerSize)
-    print("------------------------------------------------------")
+    print(symbol, "----->", bid, "/", offer, " size--> ", bidSize, "/", offerSize, "timestamp :", timestamp)
+    print("--------------------------------------------------------------------------------------------")
 
     if (bidSize == 7):
         print("BID Size of ", symbol, "----------------->", bidSize)
@@ -63,4 +56,4 @@ def MDincoming(msg):
     # si queremos escribir a un archivo usamos algo asi:
     # filename.write(str(now)+"|"+str(data['marketData']['LA']['price'])+"|"+str(data['marketData']['LA']['size'])+"|"+str(data['marketData']['BI'][0]['price'])+"|"+str(data['marketData']['BI'][0]['size'])+"|"+str(data['marketData']['OF'][0]['price'])+"|"+str(data['marketData']['OF'][0]['size'])+"\n");
     # filename.close()
-"""
+
