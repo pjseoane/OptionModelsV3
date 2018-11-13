@@ -2,6 +2,8 @@
 from datetime import datetime
 def MDincoming(msg):
     # Aca es Market Data, esta escuchando novedades
+    #Apilar mensajes en una pila por symbol y un thread que lea el ultimo apilado ?
+
     listaMensajes = []
     subsMDEvents = []
     # subsMDEvents.append(msg)
