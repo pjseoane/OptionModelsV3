@@ -7,7 +7,7 @@ def MDincoming(msg):
     listaMensajes = []
     subsMDEvents = []
     # subsMDEvents.append(msg)
-    print("En MD incoming++++++++++++++++++++++++++++++++")
+    print("En MD incoming ****************")
 
     # sys.stdout.flush()
     now = datetime.now()
