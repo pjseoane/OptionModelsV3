@@ -1,5 +1,17 @@
 
 from datetime import datetime
+from RofexAPI import PJS_RESTv3 as pjs
+
+def strat1(symb, bPrice,bSize,oPrice,oSize):
+    if (bSize < 10):
+
+        print("\n bid Size:\n",bSize)
+    return
+       # pjs.newSingleOrder("ROFX",symb,bPrice,(10-bSize),"LIMIT","BUY","DAY","555",True)
+    #return
+    #if (oSize<10):
+    #    pjs.newSingleOrder("ROFX", symb, oPrice, (10 - oSize), "LIMIT", "SELL", "DAY", "555")
+
 def MDincoming(msg):
     # Aca es Market Data, esta escuchando novedades
     #Apilar mensajes en una pila por symbol y un thread que lea el ultimo apilado ?
@@ -34,6 +46,12 @@ def MDincoming(msg):
     else:
         offer = msg['marketData']['OF'][0]['price']
         offerSize = msg['marketData']['OF'][0]['size']
+
+    strat1(symbol, bid,bidSize,offer,offerSize)
+
+
+
+
 
     msgArray = []
     msgArray.append(symbol)
