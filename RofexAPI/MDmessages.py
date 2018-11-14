@@ -10,14 +10,10 @@ def MDincoming(msg):
     print("En MD incoming ****************")
 
     # sys.stdout.flush()
-    now = datetime.now()
-    print(str(now), msg)
 
-    # print("before processinf msg:...")
     timestamp=msg['timestamp']
     symbol = msg['instrumentId']['symbol']
 
-    # print (symbol)
 
     # Aca hay un problema si no hay bid u offer pq solo viene ['marketData']
     bidMsg = msg['marketData']['BI']
