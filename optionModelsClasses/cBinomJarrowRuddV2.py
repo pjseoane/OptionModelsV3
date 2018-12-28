@@ -13,8 +13,12 @@ class cBinomJRV2(cBinom.cBinomMask):
     def calc(self):
 
         drift = self.drift()
-        u = math.exp((self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h + self.vol * math.sqrt(self.h))
-        d = math.exp((self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h - self.vol * math.sqrt(self.h))
+        firstTerm = (self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h
+        secondTerm= self.vol * math.sqrt(self.h)
+        u = math.exp(firstTerm+secondTerm)
+        d = math.exp(firstTerm-secondTerm)
+        # u = math.exp((self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h + self.vol * math.sqrt(self.h))
+        # d = math.exp((self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h - self.vol * math.sqrt(self.h))
         p = (drift - d) / (u - d)  # px=(1-p)
 
         self.stkval = self.buildUnderlyingTree(u, d)
@@ -41,7 +45,7 @@ class cBinomJRV2(cBinom.cBinomMask):
         self.arr = self.fillDerivativesArray(self.prima, self.delta, self.gamma, self.vega, self.theta, self.rho, 0, 0)
 
     def impVolV(self,accuracy):
-        return self.impliedVolV(cBinomJRV2,self.vega,accuracy)
+        return self.impliedVolV(cBinomJRV2, self.vega, accuracy)
 
     def impVolB(self,accuracy):
         return self.impliedVolB(cBinomJRV2, self.prima, accuracy)
