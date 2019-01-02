@@ -12,9 +12,11 @@ class cBinomMask(cOpt.cOption):
         self.steps = steps
         self.mktValue=mktValue
         self.h = self.dayYear / self.steps
+        self.z= math.exp(-self.riskFree * self.h)
 
     def drift(self):
-            return (1 if (self.contract == "F") else math.exp(self.riskFree * self.h))
+           return (1 if (self.contract == "F") else math.exp(self.riskFree * self.h))
+
 
     def buildUnderlyingTree(self, u, d):
 
@@ -27,7 +29,7 @@ class cBinomMask(cOpt.cOption):
                     self.undval[i, j] = self.undval[i - 1, j - 1] * d
             return self.undval
 
-    def buildOptionTree(self, p, drift, cp):
+    def buildOptionTree(self, p, cp):
             optTree = np.zeros((self.steps + 1, self.steps + 1))
 
             px = 1 - p
@@ -37,7 +39,7 @@ class cBinomMask(cOpt.cOption):
             for m in range(self.steps):
                 i = self.steps - m - 1
                 for j in range(i + 1):
-                    optTree[i, j] = (p * optTree[i + 1, j] + px * optTree[i + 1, j + 1]) / drift
+                    optTree[i, j] = (p * optTree[i + 1, j] + px * optTree[i + 1, j + 1]) * self.z #/ drift
 
                     if self.american:
                         optTree[i, j] = max(optTree[i, j], self.payoff(self.undval[i, j], self.strike, cp))

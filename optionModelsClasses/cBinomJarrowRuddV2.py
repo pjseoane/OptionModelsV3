@@ -17,12 +17,11 @@ class cBinomJRV2(cBinom.cBinomMask):
         secondTerm= self.vol * math.sqrt(self.h)
         u = math.exp(firstTerm+secondTerm)
         d = math.exp(firstTerm-secondTerm)
-        # u = math.exp((self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h + self.vol * math.sqrt(self.h))
-        # d = math.exp((self.riskFree - 0.5 * math.pow(self.vol, 2)) * self.h - self.vol * math.sqrt(self.h))
+
         p = (drift - d) / (u - d)  # px=(1-p)
 
         self.stkval = self.buildUnderlyingTree(u, d)
-        self.optval = self.buildOptionTree(p, drift, self.cp)
+        self.optval = self.buildOptionTree(p, self.cp)
 
         #Calculo los valores en cBinomialMask ?
         self.prima = self.optval[0, 0]
@@ -54,7 +53,7 @@ class cBinomJRV2(cBinom.cBinomMask):
 if __name__ == '__main__':
     print('__main__')
 
-    a = cBinomJRV2("S", 100, 100, 365, 0.3, .03, -1, 0.0, True, 100,10)
+    a = cBinomJRV2("F", 36000, 36000, 87, 0.14, .50, -1, 0.0, True, 200,850)
     print("Modelo Jarrow Rudd V2 prima:\n", a.prima)
     print("Modelo Jarrow Rudd V2 arr:\n", a.arr)
     print("Modelo Jarrow Rudd V2 ivVega:\n", a.impVolV(0.001))

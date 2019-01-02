@@ -5,7 +5,7 @@ import numpy as np
 import optionModelsDEF.commonFuncs as cf
 
 
-def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.03, cp=-1, div=0, american=True,
+def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, rf=0.10, cp=-1, div=0, american=True,
             steps=100,valueToFind=6,mktValue=11):
     """ Price and option using the Jarrow-Rudd binomial model"""
 
@@ -14,6 +14,7 @@ def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
     h = life_days / 365 / steps
     u = math.exp((rf - 0.5 * math.pow(vol, 2)) * h + vol * math.sqrt(h))
     d = math.exp((rf - 0.5 * math.pow(vol, 2)) * h - vol * math.sqrt(h))
+    z = math.exp(-rf * h)
 
     drift = cf.driftCalc(contract, rf, h)
 
@@ -37,7 +38,7 @@ def binomJRv4(contract="S", underlying=100, strike=100, life_days=365, vol=.30, 
     for m in range(steps):
         i = steps - m - 1
         for j in range(i + 1):
-            optval[i, j] = (q * optval[i + 1, j] + qx * optval[i + 1, j + 1]) / drift
+            optval[i, j] = (q * optval[i + 1, j] + qx * optval[i + 1, j + 1]) *z #/ drift
 
             if american:
                 optval[i, j] = max(optval[i, j], cf.payoff(stkval[i, j], strike, cp))

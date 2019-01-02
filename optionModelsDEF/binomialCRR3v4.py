@@ -16,6 +16,7 @@ def binomCRR3v4(contract="S", underlying=100, strike=100, life_days=365, vol=.30
         h = life_days / 365 / steps
         u = math.exp(vol * math.sqrt(h))  # upFactor
         d = math.exp(-vol * math.sqrt(h))  # DownFactor
+        z = math.exp(-rf * h)
         drift = cf.driftCalc(contract, rf, h)
 
         q = (drift - d) / (u - d)
@@ -33,7 +34,7 @@ def binomCRR3v4(contract="S", underlying=100, strike=100, life_days=365, vol=.30
                 b = optionsPrice[1]
                 c = optionsPrice[2]
             for j in range(0, steps - i):
-                optionAtNode = (q * optionsPrice[j] + qx * optionsPrice[j + 1]) / drift
+                optionAtNode = (q * optionsPrice[j] + qx * optionsPrice[j + 1]) * z #/ drift
                 optionsPrice[j] = optionAtNode  # test
 
                 if (american == 1):
